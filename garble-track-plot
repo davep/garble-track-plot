@@ -1,0 +1,23 @@
+#!/bin/bash
+
+# Quick and dirty shell script to plot a track pulled from a Garmin GPS unit
+# via garble. By Dave Pearson <davep@davep.org>
+# $Revision: 1.1 $
+
+if [ "$1" ]
+then
+    if [ -f "$1" ]
+    then
+        (
+            [ "$DISPLAY" = "" ] && echo "set terminal dumb"
+            [ "$2" ] && [ -f "$2" ] && sed -e 's/^\(.*\)\/\(.*\), \(.*\) \/\(.*\)/set label \"\1\" at \3,\2/' "$2"
+            echo "plot \"-\" title \"$1\" with lines"
+            sed -e 's/ \/.*//' -e 's/,//' -e '/^$/d' "$1" | sed -e 's/\([^ ]\+\) \([^ ]\+\)/\2 \1/g'
+        ) | gnuplot -persist
+    else
+        echo "Can't find \"$1\""
+    fi
+else
+    echo Usage: 
+    echo -e "\t$(basename $0) <track-file> [<waypoint-file>]"
+fi
